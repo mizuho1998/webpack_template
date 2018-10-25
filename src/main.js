@@ -1,5 +1,7 @@
 import Peer from 'skyway-js';
 
+console.log("test");
+
 var localStream = null;
 var peer = null;
 var existingCall = null;
@@ -10,6 +12,18 @@ navigator.getUserMedia =    navigator.getUserMedia       ||
 
 window.URL = window.URL || window.webkitURL;
 
+//
+// WebAudioAPI
+//
+// Create the instance of AudioContext
+var audioCtx = new AudioContext();
+// Create the instance of AnalyserNode
+var analyser = audioCtx.createAnalyser();
+analyser.fftSize = 2048;  // The default value
+// analyser.minDecibels = ;
+// analyser.maxDecibels = ;
+
+
 // get video and audio
 navigator.mediaDevices.getUserMedia({video: true, audio: true})
     .then(function (stream) {       // success
@@ -17,16 +31,20 @@ navigator.mediaDevices.getUserMedia({video: true, audio: true})
         $('#my-video').get(0).srcObject = stream; // set video to html
         localStream = stream;
 
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
     }).catch(function (error) {     // fault 
         
         console.error('mediaDevice.getUserMedia() error:', error);
         return;
 });
 
-peer = new Peer({
-    key: 'api_key',
-    debug: 3
-});
+// peer = new Peer({
+//     key: 'api_key',
+//     debug: 3
+// });
 
 // peer.on('open', function(){
 //     $('#my-id').text(peer.id);
@@ -90,4 +108,3 @@ peer = new Peer({
 // }
 
 
-console.log("test");
